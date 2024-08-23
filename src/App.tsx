@@ -1,4 +1,4 @@
-import { gql, useLazyQuery } from '@apollo/client';
+import { useLazyQuery } from '@apollo/client';
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
@@ -6,16 +6,6 @@ import {IS_EVEN_OR_ODD} from "./apollo/queries";
 import { IsEvenOrOddQuery, QueryEvenOrOddArgs } from './apollo/types';  // The generated types
 
 import HomePage from "./pages/HomePage/HomePage";
-
-
-// Define TypeScript interfaces (Add these at the top of your file)
-interface IsEvenOrOddData {
-    isEvenOrOdd: string;
-}
-
-interface IsEvenOrOddVars {
-    number: number;
-}
 
 const App: React.FC = () => {
     const [number, setNumber] = useState<number>(0);
