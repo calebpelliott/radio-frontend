@@ -1,0 +1,40 @@
+/* src/pages/HomePage/HomePage.module.css */
+
+.homePage {
+    padding: 20px;
+    text-align: center;
+}
+
+.title {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.usersSection {
+    margin-top: 30px;
+}
+
+.usersTitle {
+    font-size: 1.5rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.usersList {
+    list-style-type: none;
+    padding: 0;
+}
+
+.userItem {
+    font-size: 1.2rem;
+    background-color: #f9f9f9;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.userItem:hover {
+    background-color: #e0e0e0;
+}
