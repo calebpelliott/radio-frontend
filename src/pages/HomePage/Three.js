@@ -25,6 +25,14 @@ function MyThree() {
             renderer.render(scene, camera);
         };
         animate();
+
+        return () => {
+            renderer.setSize(0,0);
+            renderer.forceContextLoss();
+            renderer.dispose();
+            cube.geometry.dispose();
+            cube.material.dispose();
+        };
     }, []);
     return (
         <div ref={refContainer}></div>
