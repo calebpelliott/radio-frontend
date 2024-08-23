@@ -1,0 +1,23 @@
+# Defines the root query type for fetching data
+type Query {
+  user(id: ID!): User
+  users: [User!]!
+}
+
+type Query {
+    evenOrOdd(num: Int!): String
+}
+
+# Defines the root mutation type for modifying data
+type Mutation {
+  createUser(name: String!, email: String!): User
+  updateUser(id: ID!, name: String, email: String): User
+  deleteUser(id: ID!): User
+}
+
+# Defines the user type
+type User {
+  id: ID!
+  name: String!
+  email: String!
+}

@@ -2,14 +2,11 @@ import { gql, useLazyQuery } from '@apollo/client';
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
+import {IS_EVEN_OR_ODD} from "./apollo/queries";
+import { IsEvenOrOddQuery, QueryEvenOrOddArgs } from './apollo/types';  // The generated types
+
 import HomePage from "./pages/HomePage/HomePage";
 
-// Define GraphQL query
-const IS_EVEN_OR_ODD = gql`
-  query IsEvenOrOdd($number: Int!) {
-    isEvenOrOdd(number: $number)
-  }
-`;
 
 // Define TypeScript interfaces (Add these at the top of your file)
 interface IsEvenOrOddData {
@@ -24,11 +21,11 @@ const App: React.FC = () => {
     const [number, setNumber] = useState<number>(0);
 
     // Use useLazyQuery with types
-    const [getNumberInfo, { loading, data, error }] = useLazyQuery<IsEvenOrOddData, IsEvenOrOddVars>(IS_EVEN_OR_ODD);
+    const [getNumberInfo, { loading, data, error }] = useLazyQuery<IsEvenOrOddQuery, QueryEvenOrOddArgs>(IS_EVEN_OR_ODD);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        getNumberInfo({ variables: { number } });
+        getNumberInfo({ variables: { num:number } });
     };
 
     return (
@@ -45,7 +42,7 @@ const App: React.FC = () => {
                 </form>
                 {loading && <p>Loading...</p>}
                 {error && <p>Error: {error.message}</p>}
-                {data && <p>The number is {data.isEvenOrOdd}.</p>}
+                {data && <p>The number is {data.evenOrOdd}.</p>}
             </div>
             <Routes>
                 <Route path="/home" element={<HomePage />} />

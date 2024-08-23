@@ -1,4 +1,0 @@
-# src/graphql/isEvenOrOdd.gql
-query IsEvenOrOdd($number: Int!) {
-  isEvenOrOdd(number: $number)
-}
