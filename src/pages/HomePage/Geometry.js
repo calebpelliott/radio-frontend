@@ -133,7 +133,7 @@ function updateColors() {
 
     lut.setColorMap( params.colorMap );
 
-    lut.setMax( 2000 );
+    lut.setMax( 2000 * 10);
     lut.setMin( 0 );
 
     const geometry = mesh.geometry;
@@ -143,7 +143,7 @@ function updateColors() {
 
     for ( let i = 0; i < pressures.array.length; i ++ ) {
 
-        const colorValue = pressures.array[ i ];
+        const colorValue = pressures.array[ i ] * 10;
 
         color.copy( lut.getColor( colorValue ) ).convertSRGBToLinear();
 
