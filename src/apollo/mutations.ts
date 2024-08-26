@@ -9,3 +9,9 @@ export const CREATE_USER = gql`
     }
   }
 `;
+
+export const CREATE_JSON = gql`
+  mutation CreateJson($json: String!) {
+    createJson(json: $json)
+  }
+`;

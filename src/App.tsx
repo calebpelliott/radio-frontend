@@ -1,4 +1,4 @@
-import { useLazyQuery } from '@apollo/client';
+import {useLazyQuery, useMutation, useQuery} from '@apollo/client';
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
@@ -6,17 +6,26 @@ import {IS_EVEN_OR_ODD} from "./apollo/queries";
 import {IsEvenOrOddQuery, QueryIsEvenOrOddArgs} from './apollo/types';  // The generated types
 
 import HomePage from "./pages/HomePage/HomePage";
+import {CREATE_JSON} from "./apollo/mutations";
+import Topo from "./pages/HomePage/KVQI_Vail_CO_88-5";
 
 const App: React.FC = () => {
     const [number, setNumber] = useState<number>(0);
 
     // Use useLazyQuery with types
     const [getNumberInfo, { loading, data, error }] = useLazyQuery<IsEvenOrOddQuery, QueryIsEvenOrOddArgs>(IS_EVEN_OR_ODD);
+    const [createJson] = useMutation(CREATE_JSON);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         getNumberInfo({ variables: { number:number } });
     };
+
+    const [dataLoaded, setDataLoaded] = useState<boolean>(false);
+    const handleDataUpdate = (data: string) => {
+        setDataLoaded(true);
+        createJson({ variables: { json:"hi" } });
+    }
 
     return (
         <Router>
@@ -33,6 +42,9 @@ const App: React.FC = () => {
                 {loading && <p>Loading...</p>}
                 {error && <p>Error: {error.message}</p>}
                 {data && <p>The number is {data.isEvenOrOdd}.</p>}
+
+                <Topo onDataLoaded={handleDataUpdate}></Topo>
+                <p>{dataLoaded ? "Loaded" : "Not Loaded"}</p>
             </div>
             <Routes>
                 <Route path="/home" element={<HomePage />} />

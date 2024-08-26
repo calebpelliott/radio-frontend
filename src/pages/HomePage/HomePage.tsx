@@ -25,7 +25,7 @@ const HomePage: React.FC = () => {
             <h1 className={styles.title}>Welcome to the Home Page</h1>
             <div className={styles.usersSection}>
                 <h2 className={styles.usersTitle}>User List:</h2>
-                <Topo></Topo>
+                <Cube></Cube>
                 <ul className={styles.usersList}>
                     {users.map((user) => (
                         <li key={user.id} className={styles.userItem}>
