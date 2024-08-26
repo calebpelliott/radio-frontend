@@ -1,5 +1,5 @@
 import {useLazyQuery, useMutation, useQuery} from '@apollo/client';
-import React, { useState } from 'react';
+import React, {useCallback, useState} from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import {IS_EVEN_OR_ODD} from "./apollo/queries";
@@ -22,10 +22,10 @@ const App: React.FC = () => {
     };
 
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
-    const handleDataUpdate = (data: string) => {
+    const handleDataUpdate = useCallback((data: string) => {
         setDataLoaded(true);
         createJson({ variables: { json:"hi" } });
-    }
+    }, []);
 
     return (
         <Router>
