@@ -5,7 +5,7 @@ type Query {
 }
 
 type Query {
-    evenOrOdd(num: Int!): String
+    isEvenOrOdd(number: Int!): String
 }
 
 # Defines the root mutation type for modifying data

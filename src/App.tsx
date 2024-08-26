@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import {IS_EVEN_OR_ODD} from "./apollo/queries";
-import { IsEvenOrOddQuery, QueryEvenOrOddArgs } from './apollo/types';  // The generated types
+import {IsEvenOrOddQuery, QueryIsEvenOrOddArgs} from './apollo/types';  // The generated types
 
 import HomePage from "./pages/HomePage/HomePage";
 
@@ -11,11 +11,11 @@ const App: React.FC = () => {
     const [number, setNumber] = useState<number>(0);
 
     // Use useLazyQuery with types
-    const [getNumberInfo, { loading, data, error }] = useLazyQuery<IsEvenOrOddQuery, QueryEvenOrOddArgs>(IS_EVEN_OR_ODD);
+    const [getNumberInfo, { loading, data, error }] = useLazyQuery<IsEvenOrOddQuery, QueryIsEvenOrOddArgs>(IS_EVEN_OR_ODD);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        getNumberInfo({ variables: { num:number } });
+        getNumberInfo({ variables: { number:number } });
     };
 
     return (
@@ -32,7 +32,7 @@ const App: React.FC = () => {
                 </form>
                 {loading && <p>Loading...</p>}
                 {error && <p>Error: {error.message}</p>}
-                {data && <p>The number is {data.evenOrOdd}.</p>}
+                {data && <p>The number is {data.isEvenOrOdd}.</p>}
             </div>
             <Routes>
                 <Route path="/home" element={<HomePage />} />
