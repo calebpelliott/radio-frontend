@@ -1,9 +1,6 @@
 import React from 'react';
 import Cube from './Cube';
-//import { useGetUsers } from '../../hooks/useGetUsers';  // Custom hook for fetching users
 import styles from './HomePage.module.css';
-import Geometry from "./Geometry";
-import Topo from "./KVQI_Vail_CO_88-5";
 
 const HomePage: React.FC = () => {
     //const { data, loading, error } = useGetUsers();  // Fetch users

@@ -19,7 +19,7 @@ let scene, uiScene;
 
 let params;
 
-const Topo = ({ onDataLoaded }) => {
+const KVQI = ({ onDataLoaded }) => {
     const refContainer = useRef(null);
     useEffect(() => {
         const fetchData = async () => {
@@ -29,7 +29,7 @@ const Topo = ({ onDataLoaded }) => {
             } catch (error) {
                 console.error("Error fetching data:", error);
             }*/
-            loadGeometry();
+            await loadGeometry();
             refContainer.current && refContainer.current.appendChild( renderer.domElement );
 
         };
@@ -37,9 +37,9 @@ const Topo = ({ onDataLoaded }) => {
         fetchData();
 
         return () => {
-            renderer.setSize(0,0);
-            renderer.forceContextLoss();
-            renderer.dispose();
+            renderer && renderer.setSize(0,0);
+            renderer && renderer.forceContextLoss();
+            renderer && renderer.dispose();
             mesh.geometry.dispose();
             mesh.material.dispose();
         };
@@ -50,8 +50,7 @@ const Topo = ({ onDataLoaded }) => {
     );
 };
 
-async function experimental() {
-    return "Done";
+async function loadGeotiffModel() {
     const tiff = await fromUrl('/geotiff/USGS_1_n40w107_20220216.tif');
     const image = await tiff.getImage();
 
@@ -62,29 +61,30 @@ async function experimental() {
     //const elevation_value = data[row * image.getWidth() + col];
 
     let points = []
+    let vals = []
 
     for (let i = 0; i < image.getHeight(); i++) {
         for (let j = 0; j < image.getWidth(); j++) {
             const row = j, col = i;
             let ele = data[row * image.getWidth() + col];
             points.push(row, col, ele);
+            vals.push(ele)
         }
     }
 
-    let json = getJson(points)
+    let modelData = formatToThree(points, vals)
 
     // Get metadata
     const width = image.getWidth();
     const height = image.getHeight();
     const bbox = image.getBoundingBox();
-    console.log('Data array:', data);
-    //console.log('Width:', width, 'Height:', height, 'Bounding Box:', bbox, "Elevation:", elevation_value);
-    let x = 4;
+    console.log('Width:', width, 'Height:', height, 'Bounding Box:', bbox);
 
-    return JSON.stringify(json)
+
+    return modelData
 }
 
-function getJson (points) {
+function formatToThree (vertices, vals) {
     const geo_data = {
         metadata: {
             version: 4,
@@ -97,7 +97,7 @@ function getJson (points) {
                 position: {
                     itemSize: 3,
                     type: "Float32Array",
-                    array: points
+                    array: vertices
                 }
             }
         }
@@ -109,7 +109,7 @@ function getJson (points) {
     return geo_data;
 }
 
-function loadGeometry() {
+async function loadGeometry() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xffffff);
 
@@ -144,7 +144,6 @@ function loadGeometry() {
     params = {
         colorMap: 'rainbow',
     };
-    loadModel();
 
     const pointLight = new THREE.PointLight(0xffffff, 3, 0, 0);
     perpCamera.add(pointLight);
@@ -167,6 +166,9 @@ function loadGeometry() {
         render();
 
     });
+
+    loadModel();
+
     return renderer;
 }
 
@@ -191,10 +193,10 @@ function render() {
 
 }
 
-function loadModel( ) {
+async function loadModel() {
 
     const loader = new THREE.BufferGeometryLoader();
-    loader.load( '/models/json/pressure.json', function ( geometry ) {
+    loader.load('/models/json/pressure.json', function (geometry) {
 
         geometry.center();
         geometry.computeVertexNormals();
@@ -202,26 +204,58 @@ function loadModel( ) {
         // default color attribute
         const colors = [];
 
-        for ( let i = 0, n = geometry.attributes.position.count; i < n; ++ i ) {
+        for (let i = 0, n = geometry.attributes.position.count; i < n; ++i) {
 
-            colors.push( 1, 1, 1 );
+            colors.push(1, 1, 1);
 
         }
 
-        geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
         mesh.geometry = geometry;
         updateColors();
 
         render();
 
-    } );
+    });
 
+    /*const geometry = new THREE.BufferGeometry();
+    geometry.center();
+    geometry.computeVertexNormals();
+    const model = await loadGeotiffModel();
+
+    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( model.data.attributes.position.array, model.data.attributes.position.itemSize ) );
+    const colors = [];
+    for (let i = 0, n = geometry.attributes.position.count; i < n; ++i) {
+        colors.push(1, 1, 1);
+    }
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    mesh.geometry = geometry;
+    render();*/
+
+
+    /*const geometry = new THREE.BufferGeometry();
+    // create a simple square shape. We duplicate the top left and bottom right
+    // vertices because each vertex needs to appear once per triangle.
+    const vertices = new Float32Array( [
+        -1.0, -1.0,  1.0, // v0
+        1.0, -1.0,  1.0, // v1
+        1.0,  1.0,  1.0, // v2
+
+        1.0,  1.0,  1.0, // v3
+        -1.0,  1.0,  1.0, // v4
+        -1.0, -1.0,  1.0  // v5
+    ] );
+
+    // itemSize = 3 because there are 3 values (components) per vertex
+    geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+    mesh.geometry = geometry;
+    render();*/
 }
 
 function updateColors() {
 
-    lut.setColorMap( params.colorMap );
+    /*lut.setColorMap( params.colorMap );
 
     lut.setMax( 2000 * 10);
     lut.setMin( 0 );
@@ -245,8 +279,8 @@ function updateColors() {
 
     const map = sprite.material.map;
     lut.updateCanvas( map.image );
-    map.needsUpdate = true;
+    map.needsUpdate = true;*/
 
 }
 
-export default Topo
+export default KVQI
