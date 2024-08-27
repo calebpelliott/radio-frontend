@@ -45,6 +45,7 @@ function Terrain() {
         //
 
         const data = generateHeight( worldWidth, worldDepth );
+        console.log("0", data[0], "255", data[255], "256", data[256])
 
         controls.target.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] + 500;
         camera.position.y = controls.target.y + 2000;
@@ -55,11 +56,24 @@ function Terrain() {
         geometry.rotateX( - Math.PI / 2 );
 
         const vertices = geometry.attributes.position.array;
-
+        let x = 0;
+        let inc = true;
         for ( let i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
-
+            if (inc && x > 255) {
+                inc = false;
+            }
+            else if (!inc && x < 1) {
+                inc = true;
+            }
+            
+            if (inc) {
+                x++
+            }else{
+                x--
+            }
+            
+            //vertices[ j + 1 ] = x*10;//triangle slices
             vertices[ j + 1 ] = data[ i ] * 10;
-
         }
 
         //
@@ -228,7 +242,7 @@ function onPointerMove( event ) {
         helper.lookAt( intersects[ 0 ].face.normal );
 
         helper.position.copy( intersects[ 0 ].point );
-
+        console.log(helper.position)
     }
 
 }
