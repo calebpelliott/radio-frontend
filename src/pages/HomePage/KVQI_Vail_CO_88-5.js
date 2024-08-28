@@ -58,6 +58,10 @@ function transform(a, b, M, roundToInt = false) {
     ];
 }
 
+function coordinateToPixel(offset, degreePerPixel, degrees) {
+    return Math.round((-(offset) + degrees) / degreePerPixel);
+}
+
 export async function loadSwath(width, height) {
     const tiff = await fromUrl('/geotiff/USGS_1_n40w107_20220216.tif');
     const image = await tiff.getImage();
@@ -74,11 +78,19 @@ export async function loadSwath(width, height) {
     let x = 0, y= 0;
     const gpsBBox = [transform(x, y, pixelToGPS), transform(x + 1, y + 1, pixelToGPS)];
     console.log(`Pixel covers the following GPS area:`, gpsBBox);
+    let xx = coordinateToPixel(gx, sx, gpsBBox[0][0]);//(-(gx) + gpsBBox[0][0]) / sx;
+    let yy = (-(gy) + gpsBBox[0][1]) / sy;
+    const gpsToPixel = [0, 1/sx, 0, 0, 0, 1/sy];
+    let pixelBox = transform(gpsBBox[0][0], gpsBBox[0][1], gpsToPixel);
 
     x = width - 1;
     y= height - 1;
     const gpsBBox2 = [transform(x, y, pixelToGPS), transform(x + 1, y + 1, pixelToGPS)];
+    xx = coordinateToPixel(gx,sx, gpsBBox2[0][0])
     console.log(`Pixel covers the following GPS area:`, gpsBBox2);
+
+    const bbox = image.getBoundingBox();
+    console.log('Bounding Box:', bbox);
 
     let vals = [];
 
