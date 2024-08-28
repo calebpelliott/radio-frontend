@@ -22,7 +22,7 @@ let helper;
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
-function Terrain() {
+function TerrainCorner() {
     const refContainer = useRef(null);
     useEffect(() => {
         const main = async () => {
@@ -266,4 +266,4 @@ function onPointerMove( event ) {
 
 }
 
-export default Terrain
+export default TerrainCorner

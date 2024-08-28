@@ -62,7 +62,7 @@ function coordinateToPixel(offset, degreePerPixel, degrees) {
     return Math.round((-(offset) + degrees) / degreePerPixel);
 }
 
-export async function loadSwath(width, height) {
+export async function loadSwath(width, height, lat, lon) {
     const tiff = await fromUrl('/geotiff/USGS_1_n40w107_20220216.tif');
     const image = await tiff.getImage();
     const [data] = await image.readRasters();
