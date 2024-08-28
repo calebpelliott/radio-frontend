@@ -50,6 +50,49 @@ const KVQI = ({ onDataLoaded }) => {
     );
 };
 
+function transform(a, b, M, roundToInt = false) {
+    const round = (v) => (roundToInt ? v | 0 : v);
+    return [
+        round(M[0] + M[1] * a + M[2] * b),
+        round(M[3] + M[4] * a + M[5] * b),
+    ];
+}
+
+export async function loadSwath(width, height) {
+    const tiff = await fromUrl('/geotiff/USGS_1_n40w107_20220216.tif');
+    const image = await tiff.getImage();
+    const [data] = await image.readRasters();
+
+    // Construct the WGS-84 forward and inverse affine matrices:
+    const { ModelPixelScale: s, ModelTiepoint: t } = image.fileDirectory;
+    let [sx, sy, sz] = s;
+    let [px, py, k, gx, gy, gz] = t;
+    sy = -sy; // WGS-84 tiles have a "flipped" y component
+    const pixelToGPS = [gx, sx, 0, gy, 0, sy];
+    console.log(`pixel to GPS transform matrix:`, pixelToGPS);
+
+    let x = 0, y= 0;
+    const gpsBBox = [transform(x, y, pixelToGPS), transform(x + 1, y + 1, pixelToGPS)];
+    console.log(`Pixel covers the following GPS area:`, gpsBBox);
+
+    x = width - 1;
+    y= height - 1;
+    const gpsBBox2 = [transform(x, y, pixelToGPS), transform(x + 1, y + 1, pixelToGPS)];
+    console.log(`Pixel covers the following GPS area:`, gpsBBox2);
+
+    let vals = [];
+
+    for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
+            const row = j, col = i;
+            let ele = data[row * image.getWidth() + col];
+            vals.push(ele)
+        }
+    }
+
+    return vals;
+}
+
 async function loadGeotiffModel() {
     const tiff = await fromUrl('/geotiff/USGS_1_n40w107_20220216.tif');
     const image = await tiff.getImage();

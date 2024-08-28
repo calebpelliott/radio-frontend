@@ -6,6 +6,7 @@ import Stats from 'three/addons/libs/stats.module.js';
 
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
+import {loadSwath} from "./KVQI_Vail_CO_88-5";
 
 let container, stats;
 
@@ -24,81 +25,93 @@ const pointer = new THREE.Vector2();
 function Terrain() {
     const refContainer = useRef(null);
     useEffect(() => {
-        renderer = new THREE.WebGLRenderer( { antialias: true } );
-        renderer.setPixelRatio( window.devicePixelRatio );
-        renderer.setSize( window.innerWidth, window.innerHeight );
-        renderer.setAnimationLoop( animate );
-        // document.body.appendChild( renderer.domElement );
-        // use ref as a mount point of the Cube.js scene instead of the document.body
-        refContainer.current && refContainer.current.appendChild( renderer.domElement );
+        const main = async () => {
+            renderer = new THREE.WebGLRenderer( { antialias: true } );
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.setAnimationLoop( animate );
+            // document.body.appendChild( renderer.domElement );
+            // use ref as a mount point of the Cube.js scene instead of the document.body
+            refContainer.current && refContainer.current.appendChild( renderer.domElement );
 
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color( 0xbfd1e5 );
+            stats = new Stats();
 
-        camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 10, 20000 );
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color( 0xbfd1e5 );
 
-        controls = new OrbitControls( camera, renderer.domElement );
-        controls.minDistance = 1000;
-        controls.maxDistance = 10000;
-        controls.maxPolarAngle = Math.PI / 2;
+            camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 10, 20000 );
 
-        //
+            controls = new OrbitControls( camera, renderer.domElement );
+            controls.minDistance = 1000;
+            controls.maxDistance = 100000;
+            controls.maxPolarAngle = Math.PI / 2;
 
-        const data = generateHeight( worldWidth, worldDepth );
-        console.log("0", data[0], "255", data[255], "256", data[256])
+            //
 
-        controls.target.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] + 500;
-        camera.position.y = controls.target.y + 2000;
-        camera.position.x = 2000;
-        controls.update();
+            const data = generateHeight( worldWidth, worldDepth );
+            let elevationData = await loadElevationData(worldWidth, worldDepth);
+            let min = ~~(Math.min(...elevationData));
+            elevationData = elevationData.map(num => num - min);
 
-        const geometry = new THREE.PlaneGeometry( 7500, 7500, worldWidth - 1, worldDepth - 1 );
-        geometry.rotateX( - Math.PI / 2 );
+            console.log("0", data[0], "255", data[255], "256", data[256]);
+            console.log("max", Math.max(...data), "min", Math.min(...data), "max", Math.max(...elevationData), "min", Math.min(...elevationData));
 
-        const vertices = geometry.attributes.position.array;
-        let x = 0;
-        let inc = true;
-        for ( let i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
-            if (inc && x > 255) {
-                inc = false;
+            controls.target.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] + 500;
+            camera.position.y = controls.target.y + 2000;
+            camera.position.x = 2000;
+            controls.update();
+
+            const geometry = new THREE.PlaneGeometry( 7500, 7500, worldWidth - 1, worldDepth - 1 );
+            geometry.rotateX( - Math.PI / 2 );
+
+            const vertices = geometry.attributes.position.array;
+            let x = 0;
+            let inc = true;
+            for ( let i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
+                if (inc && x > 255) {
+                    inc = false;
+                }
+                else if (!inc && x < 1) {
+                    inc = true;
+                }
+
+                if (inc) {
+                    x++
+                }else{
+                    x--
+                }
+
+                //vertices[ j + 1 ] = x*10;//triangle slices
+                //vertices[ j + 1 ] = data[ i ] * 10;
+                vertices[ j + 1 ] = elevationData[ i ]*5;
             }
-            else if (!inc && x < 1) {
-                inc = true;
-            }
-            
-            if (inc) {
-                x++
-            }else{
-                x--
-            }
-            
-            //vertices[ j + 1 ] = x*10;//triangle slices
-            vertices[ j + 1 ] = data[ i ] * 10;
-        }
 
-        //
+            //
 
-        texture = new THREE.CanvasTexture( generateTexture( data, worldWidth, worldDepth ) );
-        texture.wrapS = THREE.ClampToEdgeWrapping;
-        texture.wrapT = THREE.ClampToEdgeWrapping;
-        texture.colorSpace = THREE.SRGBColorSpace;
+            //texture = new THREE.CanvasTexture( generateTexture( data, worldWidth, worldDepth ) );
+            texture = new THREE.CanvasTexture( generateTexture( elevationData, worldWidth, worldDepth ) );
+            texture.wrapS = THREE.ClampToEdgeWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
+            texture.colorSpace = THREE.SRGBColorSpace;
 
-        mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
-        scene.add( mesh );
+            mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
+            scene.add( mesh );
 
-        const geometryHelper = new THREE.ConeGeometry( 20, 100, 3 );
-        geometryHelper.translate( 0, 50, 0 );
-        geometryHelper.rotateX( Math.PI / 2 );
-        helper = new THREE.Mesh( geometryHelper, new THREE.MeshNormalMaterial() );
-        scene.add( helper );
+            const geometryHelper = new THREE.ConeGeometry( 20, 100, 3 );
+            geometryHelper.translate( 0, 50, 0 );
+            geometryHelper.rotateX( Math.PI / 2 );
+            helper = new THREE.Mesh( geometryHelper, new THREE.MeshNormalMaterial() );
+            scene.add( helper );
 
-        refContainer.current && refContainer.current.addEventListener( 'pointermove', onPointerMove );
+            refContainer.current && refContainer.current.addEventListener( 'pointermove', onPointerMove );
 
-        stats = new Stats();
-        refContainer.current && refContainer.current.appendChild( stats.dom );
 
-        window.addEventListener( 'resize', onWindowResize );
+            refContainer.current && refContainer.current.appendChild( stats.dom );
 
+            window.addEventListener( 'resize', onWindowResize );
+        };
+
+        main();
         return () => {
             renderer.setSize(0,0);
             renderer.forceContextLoss();
@@ -117,6 +130,12 @@ function onWindowResize() {
 
     renderer.setSize( window.innerWidth, window.innerHeight );
 
+}
+
+async function loadElevationData(width, height) {
+    const size = width * height;
+    let data = await loadSwath(width, height);
+    return data;
 }
 
 function generateHeight( width, height ) {
