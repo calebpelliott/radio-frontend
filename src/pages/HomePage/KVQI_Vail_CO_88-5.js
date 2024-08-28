@@ -74,6 +74,7 @@ export async function loadSwath(width, height, lat, lon) {
     sy = -sy; // WGS-84 tiles have a "flipped" y component
     const pixelToGPS = [gx, sx, 0, gy, 0, sy];
     console.log(`pixel to GPS transform matrix:`, pixelToGPS);
+    console.log(transform(530, 572, pixelToGPS));
 
     let x = 0, y= 0;
     const gpsBBox = [transform(x, y, pixelToGPS), transform(x + 1, y + 1, pixelToGPS)];
@@ -83,7 +84,7 @@ export async function loadSwath(width, height, lat, lon) {
     const gpsToPixel = [0, 1/sx, 0, 0, 0, 1/sy];
     let pixelBox = transform(gpsBBox[0][0], gpsBBox[0][1], gpsToPixel);
 
-    x = width - 1;
+    x = 0;
     y= height - 1;
     const gpsBBox2 = [transform(x, y, pixelToGPS), transform(x + 1, y + 1, pixelToGPS)];
     xx = coordinateToPixel(gx,sx, gpsBBox2[0][0])
@@ -94,9 +95,13 @@ export async function loadSwath(width, height, lat, lon) {
 
     let vals = [];
 
-    for (let i = 0; i < height; i++) {
+    let y_offset = coordinateToPixel(gx,sx, lat);
+    let x_offset = coordinateToPixel(gx,sx, lon);
+
+    for (let i = height-1; i >=0; i--) {
         for (let j = 0; j < width; j++) {
-            const row = j, col = i;
+            const row = j+256;// + x_offset;
+            const col = i+256;// + y_offset;
             let ele = data[row * image.getWidth() + col];
             vals.push(ele)
         }

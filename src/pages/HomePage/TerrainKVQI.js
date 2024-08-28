@@ -14,7 +14,7 @@ let camera, controls, scene, renderer;
 
 let mesh, texture;
 
-const worldWidth = 256, worldDepth = 256,
+const worldWidth = 550, worldDepth = 550,
     worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
 
 let helper;
@@ -49,12 +49,19 @@ function TerrainCorner() {
             //
 
             const data = generateHeight( worldWidth, worldDepth );
-            let elevationData = await loadElevationData(worldWidth, worldDepth,  39.732799, -106.857484);
-            let min = ~~(Math.min(...elevationData));
+            let elevationData = await loadElevationData(worldWidth, worldDepth,  39.899820, -106.897839);
+
+            let min = elevationData[0];
+            for (const num of elevationData) {
+                if (num < min) {
+                    min = num;
+                }
+            }
+
             elevationData = elevationData.map(num => num - min);
 
             console.log("0", data[0], "255", data[255], "256", data[256]);
-            console.log("max", Math.max(...data), "min", Math.min(...data), "max", Math.max(...elevationData), "min", Math.min(...elevationData));
+            console.log("min", min);
 
             controls.target.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] + 500;
             camera.position.y = controls.target.y + 2000;
@@ -83,7 +90,7 @@ function TerrainCorner() {
 
                 //vertices[ j + 1 ] = x*10;//triangle slices
                 //vertices[ j + 1 ] = data[ i ] * 10;
-                vertices[ j + 1 ] = elevationData[ i ]*5;
+                vertices[ j + 1 ] = elevationData[ i ];
             }
 
             //
