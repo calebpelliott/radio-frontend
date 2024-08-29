@@ -9,7 +9,7 @@ import HomePage from "./pages/HomePage/HomePage";
 import {CREATE_JSON} from "./apollo/mutations";
 import KVQI from "./pages/HomePage/KVQI_Vail_CO_88-5";
 import TerrainCorner from "./pages/HomePage/TerrainCorner";
-import TerrainKVQI from "./pages/HomePage/TerrainKVQI";
+import TerrainKVQI from "./pages/HomePage/TerrainColoradoRiver";
 
 const App: React.FC = () => {
     const [number, setNumber] = useState<number>(0);

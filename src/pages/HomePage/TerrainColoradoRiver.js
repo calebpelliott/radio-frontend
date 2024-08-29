@@ -14,7 +14,7 @@ let camera, controls, scene, renderer;
 
 let mesh, texture;
 
-const worldWidth = 256, worldDepth = 256,
+const worldWidth = 512, worldDepth = 1024,
     worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
 
 let helper;
@@ -49,7 +49,7 @@ function TerrainCorner() {
             //
 
             const data = generateHeight( worldWidth, worldDepth );
-            let elevationData = await loadElevationData(worldWidth, worldDepth,  39.899820, -106.897839);
+            let elevationData = await loadElevationData(worldWidth, worldDepth,  39.999820, -106.930555);
 
             let min = elevationData[0];
             for (const num of elevationData) {
@@ -68,7 +68,7 @@ function TerrainCorner() {
             camera.position.x = 2000;
             controls.update();
 
-            const geometry = new THREE.PlaneGeometry( 7500, 7500, worldWidth - 1, worldDepth - 1 );
+            const geometry = new THREE.PlaneGeometry( 3000, 7500, worldWidth - 1, worldDepth - 1 );
             geometry.rotateX( - Math.PI / 2 );
 
             const vertices = geometry.attributes.position.array;

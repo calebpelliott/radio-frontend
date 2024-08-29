@@ -95,13 +95,16 @@ export async function loadSwath(width, height, lat, lon) {
 
     let vals = [];
 
-    let y_offset = coordinateToPixel(gx,sx, lat);
-    let x_offset = coordinateToPixel(gx,sx, lon);
+    //let y_offset = coordinateToPixel(gx,sx, lat);
+    //let x_offset = coordinateToPixel(gx,sx, lon);
+
+    let y_offset = Math.round(Math.abs((gy - lat) / sy));
+    let x_offset = Math.round(Math.abs((lon - gx) / sx));
 
     for (let i = height-1; i >=0; i--) {
         for (let j = 0; j < width; j++) {
-            const row = j;// + x_offset;
-            const col = i;// + y_offset;
+            const row = j + x_offset;
+            const col = i + y_offset;
             let ele = data[row * image.getWidth() + col];
             vals.push(ele)
         }
