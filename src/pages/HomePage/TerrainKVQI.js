@@ -14,7 +14,7 @@ let camera, controls, scene, renderer;
 
 let mesh, texture;
 
-const worldWidth = 550, worldDepth = 550,
+const worldWidth = 256, worldDepth = 256,
     worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
 
 let helper;

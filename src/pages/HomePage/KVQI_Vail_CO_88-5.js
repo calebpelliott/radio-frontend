@@ -100,8 +100,8 @@ export async function loadSwath(width, height, lat, lon) {
 
     for (let i = height-1; i >=0; i--) {
         for (let j = 0; j < width; j++) {
-            const row = j+256;// + x_offset;
-            const col = i+256;// + y_offset;
+            const row = j;// + x_offset;
+            const col = i;// + y_offset;
             let ele = data[row * image.getWidth() + col];
             vals.push(ele)
         }
