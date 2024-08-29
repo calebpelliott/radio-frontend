@@ -58,11 +58,7 @@ function transform(a, b, M, roundToInt = false) {
     ];
 }
 
-function coordinateToPixel(offset, degreePerPixel, degrees) {
-    return Math.round((-(offset) + degrees) / degreePerPixel);
-}
-
-export async function loadSwath(width, height, lat, lon) {
+export async function loadSwath(heigth, width, lat, lon) {
     const tiff = await fromUrl('/geotiff/USGS_1_n40w107_20220216.tif');
     const image = await tiff.getImage();
     const [data] = await image.readRasters();
@@ -73,36 +69,25 @@ export async function loadSwath(width, height, lat, lon) {
     let [px, py, k, gx, gy, gz] = t;
     sy = -sy; // WGS-84 tiles have a "flipped" y component
     const pixelToGPS = [gx, sx, 0, gy, 0, sy];
-    console.log(`pixel to GPS transform matrix:`, pixelToGPS);
-    console.log(transform(530, 572, pixelToGPS));
 
-    let x = 0, y= 0;
+    let y_offset = Math.round(Math.abs((gy - lat) / sy));
+    let x_offset = Math.round(Math.abs((lon - gx) / sx));
+    let x = x_offset, y= y_offset;
     const gpsBBox = [transform(x, y, pixelToGPS), transform(x + 1, y + 1, pixelToGPS)];
-    console.log(`Pixel covers the following GPS area:`, gpsBBox);
-    let xx = coordinateToPixel(gx, sx, gpsBBox[0][0]);//(-(gx) + gpsBBox[0][0]) / sx;
-    let yy = (-(gy) + gpsBBox[0][1]) / sy;
-    const gpsToPixel = [0, 1/sx, 0, 0, 0, 1/sy];
-    let pixelBox = transform(gpsBBox[0][0], gpsBBox[0][1], gpsToPixel);
+    console.log(`Pixel covers the following GPS area:`, gpsBBox[0]);
 
-    x = 0;
-    y= height - 1;
+    x = x_offset + width;
+    y= y_offset + heigth;
     const gpsBBox2 = [transform(x, y, pixelToGPS), transform(x + 1, y + 1, pixelToGPS)];
-    xx = coordinateToPixel(gx,sx, gpsBBox2[0][0])
-    console.log(`Pixel covers the following GPS area:`, gpsBBox2);
+    console.log(`Pixel covers the following GPS area:`, gpsBBox2[0]);
 
     const bbox = image.getBoundingBox();
     console.log('Bounding Box:', bbox);
 
     let vals = [];
 
-    //let y_offset = coordinateToPixel(gx,sx, lat);
-    //let x_offset = coordinateToPixel(gx,sx, lon);
-
-    let y_offset = Math.round(Math.abs((gy - lat) / sy));
-    let x_offset = Math.round(Math.abs((lon - gx) / sx));
-
-    for (let i = height-1; i >=0; i--) {
-        for (let j = 0; j < width; j++) {
+    for (let i = width-1; i >=0; i--) {
+        for (let j = 0; j < heigth; j++) {
             const row = j + x_offset;
             const col = i + y_offset;
             let ele = data[row * image.getWidth() + col];
