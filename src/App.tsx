@@ -46,7 +46,7 @@ const App: React.FC = () => {
                 {error && <p>Error: {error.message}</p>}
                 {data && <p>The number is {data.isEvenOrOdd}.</p>}
 
-                <TerrainColoradoRiver></TerrainColoradoRiver>
+                <TerrainKVQI></TerrainKVQI>
                 <p>{dataLoaded ? "Loaded" : "Not Loaded"}</p>
             </div>
             <Routes>

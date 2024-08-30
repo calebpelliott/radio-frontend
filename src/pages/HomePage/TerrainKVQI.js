@@ -14,7 +14,7 @@ let camera, controls, scene, renderer;
 
 let mesh, texture;
 
-const worldHeight = 256, worldWidth = 512,
+const worldHeight = 512, worldWidth = 512,
     worldHalfWidth = worldHeight / 2, worldHalfDepth = worldWidth / 2;
 
 let helper;
@@ -49,7 +49,7 @@ function TerrainColoradoRiver() {
             //
 
             const data = generateHeight( worldHeight, worldWidth );
-            let elevationData = await loadElevationData(worldHeight, worldWidth,  39.899820, -106.897839);
+            let elevationData = await loadElevationData(worldHeight, worldWidth,  39.732799, -106.857484);
 
             let min = elevationData[0];
             for (const num of elevationData) {
