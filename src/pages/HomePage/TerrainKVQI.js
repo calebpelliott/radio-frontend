@@ -49,7 +49,7 @@ function TerrainColoradoRiver() {
             //
 
             const data = generateHeight( worldHeight, worldWidth );
-            let elevationData = await loadElevationData(worldHeight, worldWidth,  39.732799, -106.857484);
+            let elevationData = await loadElevationData(worldHeight, worldWidth,  39.832799, -106.857484, 4, 3);
 
             let min = elevationData[0];
             for (const num of elevationData) {
@@ -139,8 +139,8 @@ function onWindowResize() {
 
 }
 
-async function loadElevationData(heigth, width, lat, lon) {
-    let data = await loadSwath(heigth, width, lat, lon);
+async function loadElevationData(heigth, width, lat, lon, widthMultiplier = 1, heightMultiplier = 1) {
+    let data = await loadSwath(heigth, width, lat, lon, widthMultiplier, heightMultiplier);
     return data;
 }
 

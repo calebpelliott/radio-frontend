@@ -58,7 +58,7 @@ function transform(a, b, M, roundToInt = false) {
     ];
 }
 
-export async function loadSwath(heigth, width, lat, lon) {
+export async function loadSwath(heigth, width, lat, lon, widthMultiplier = 1, heightMultiplier = 1) {
     const tiff = await fromUrl('/geotiff/USGS_1_n40w107_20220216.tif');
     const image = await tiff.getImage();
     const [data] = await image.readRasters();
@@ -74,12 +74,14 @@ export async function loadSwath(heigth, width, lat, lon) {
     let x_offset = Math.round(Math.abs((lon - gx) / sx));
     let x = x_offset, y= y_offset;
     const gpsBBox = [transform(x, y, pixelToGPS), transform(x + 1, y + 1, pixelToGPS)];
-    console.log(`Pixel covers the following GPS area:`, gpsBBox[0]);
+    console.log(`Origin (top left):`, gpsBBox[0]);
+    console.log(gpsBBox[0][1] + "," + gpsBBox[0][0]);
 
-    x = x_offset + width;
-    y= y_offset + heigth;
+    x = x_offset + (width * widthMultiplier);
+    y= y_offset + (heigth * heightMultiplier);
     const gpsBBox2 = [transform(x, y, pixelToGPS), transform(x + 1, y + 1, pixelToGPS)];
-    console.log(`Pixel covers the following GPS area:`, gpsBBox2[0]);
+    console.log(`Bottom right:`, gpsBBox2[0]);
+    console.log(gpsBBox2[0][1] + "," + gpsBBox2[0][0]);
 
     const bbox = image.getBoundingBox();
     console.log('Bounding Box:', bbox);
@@ -88,8 +90,8 @@ export async function loadSwath(heigth, width, lat, lon) {
 
     for (let i = width-1; i >=0; i--) {
         for (let j = 0; j < heigth; j++) {
-            const row = j + x_offset;
-            const col = i + y_offset;
+            const row = (j * widthMultiplier) + x_offset;
+            const col = (i * heightMultiplier) + y_offset;
             let ele = data[row * image.getWidth() + col];
             vals.push(ele)
         }
