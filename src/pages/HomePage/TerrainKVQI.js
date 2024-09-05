@@ -49,7 +49,7 @@ function TerrainColoradoRiver() {
             //
 
             const data = generateHeight( worldHeight, worldWidth );
-            let elevationData = await loadElevationData(worldHeight, worldWidth,  39.832799, -106.857484, 4, 3);
+            let elevationData = await loadElevationData(worldHeight, worldWidth,  39.832799, -106.857484, 4, 4);
 
             let min = elevationData[0];
             for (const num of elevationData) {
@@ -90,7 +90,7 @@ function TerrainColoradoRiver() {
 
                 //vertices[ j + 1 ] = x*10;//triangle slices
                 //vertices[ j + 1 ] = data[ i ] * 10;
-                vertices[ j + 1 ] = elevationData[ i ];
+                vertices[ j + 1 ] = elevationData[ i ] * .5;
             }
 
             //
@@ -102,6 +102,8 @@ function TerrainColoradoRiver() {
             texture.colorSpace = THREE.SRGBColorSpace;
 
             mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
+            /**uncomment for black wire mesh **/
+            //mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true } ) );
             scene.add( mesh );
 
             const geometryHelper = new THREE.ConeGeometry( 20, 100, 3 );
@@ -231,6 +233,15 @@ function generateTexture( data, width, height ) {
     }
 
     context.putImageData( image, 0, 0 );
+
+    let dotGeometry = new THREE.BoxGeometry( 80, 20, 80 ),
+        dotMaterial = new THREE.MeshBasicMaterial( {color:'blue'})
+
+    let pixel = context.getImageData( 0, 0, 1, 1 );
+    let y = 1000
+    var dot = new THREE.Mesh( dotGeometry, dotMaterial );
+    dot.position.set( -3750, y, -3750 );
+    scene.add( dot );
 
     return canvasScaled;
 
