@@ -49,7 +49,7 @@ function TerrainColoradoRiver() {
             //
 
             const data = generateHeight( worldHeight, worldWidth );
-            let elevationData = await loadElevationData(worldHeight, worldWidth,  39.832799, -106.857484, 4, 4);
+            let [elevationData, contour_idxs] = await loadElevationData(worldHeight, worldWidth,  39.832799, -106.857484, 4, 4);
 
             let min = elevationData[0];
             for (const num of elevationData) {
@@ -93,17 +93,20 @@ function TerrainColoradoRiver() {
                 vertices[ j + 1 ] = elevationData[ i ] * .5;
             }
 
-            let vertPosition = geometry.attributes.position;
-            let point_x = vertPosition.getX(42331);
-            let point_z = vertPosition.getZ(42331);
-            let point_y = vertPosition.getY(42331);
+            const vertPosition = geometry.attributes.position;
+            for(const i in contour_idxs) {
+                let point_x = vertPosition.getX(contour_idxs[i]);
+                let point_z = vertPosition.getZ(contour_idxs[i]);
+                let point_y = vertPosition.getY(contour_idxs[i]);
 
-            let dotGeometry = new THREE.BoxGeometry( 80, 20, 80 ),
-                dotMaterial = new THREE.MeshBasicMaterial( {color:'blue'})
+                let dotGeometry = new THREE.BoxGeometry( 80, 20, 80 ),
+                    dotMaterial = new THREE.MeshBasicMaterial( {color:'blue'})
 
-            var dot = new THREE.Mesh( dotGeometry, dotMaterial );
-            dot.position.set( point_x, point_y, point_z );
-            scene.add( dot );
+                var dot = new THREE.Mesh( dotGeometry, dotMaterial );
+                dot.position.set( point_x, point_y, point_z );
+                scene.add( dot );
+            }
+
 
             //
 
