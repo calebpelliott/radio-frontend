@@ -11,6 +11,8 @@ import KVQI from "./pages/HomePage/KVQI_Vail_CO_88-5";
 import TerrainCorner from "./pages/HomePage/TerrainCorner";
 import TerrainColoradoRiver from "./pages/HomePage/TerrainColoradoRiver";
 import TerrainKVQI from "./pages/HomePage/TerrainKVQI";
+import LineSegments from "./pages/HomePage/LineSegmentsFromCubeGeometry";
+import SimpleLineSegments from "./pages/HomePage/SimpleLineSegments";
 
 const App: React.FC = () => {
     const [number, setNumber] = useState<number>(0);
@@ -46,7 +48,7 @@ const App: React.FC = () => {
                 {error && <p>Error: {error.message}</p>}
                 {data && <p>The number is {data.isEvenOrOdd}.</p>}
 
-                <TerrainKVQI></TerrainKVQI>
+                <SimpleLineSegments></SimpleLineSegments>
                 <p>{dataLoaded ? "Loaded" : "Not Loaded"}</p>
             </div>
             <Routes>
