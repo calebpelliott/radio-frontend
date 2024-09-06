@@ -86,6 +86,11 @@ export async function loadSwath(heigth, width, lat, lon, widthMultiplier = 1, he
     const bbox = image.getBoundingBox();
     console.log('Bounding Box:', bbox);
 
+    let latitude = 39.473010;
+    let longitude = -106.35570;
+    let lat_y = Math.round(Math.abs((gy - latitude) / sy));
+    let long_x = Math.round(Math.abs((longitude - gx) / sx));
+
     let vals = [];
 
     for (let i = width-1; i >=0; i--) {
@@ -94,6 +99,12 @@ export async function loadSwath(heigth, width, lat, lon, widthMultiplier = 1, he
             const col = (i * heightMultiplier) + y_offset;
             let ele = data[row * image.getWidth() + col];
             vals.push(ele)
+
+            if (row <= lat_y+2 && row >= lat_y-2){
+                if (col <= long_x+2 && col >= long_x-2) {
+                    let index = vals.length;
+                }
+            }
         }
     }
 

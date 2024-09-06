@@ -93,6 +93,18 @@ function TerrainColoradoRiver() {
                 vertices[ j + 1 ] = elevationData[ i ] * .5;
             }
 
+            let vertPosition = geometry.attributes.position;
+            let point_x = vertPosition.getX(42331);
+            let point_z = vertPosition.getZ(42331);
+            let point_y = vertPosition.getY(42331);
+
+            let dotGeometry = new THREE.BoxGeometry( 80, 20, 80 ),
+                dotMaterial = new THREE.MeshBasicMaterial( {color:'blue'})
+
+            var dot = new THREE.Mesh( dotGeometry, dotMaterial );
+            dot.position.set( point_x, point_y, point_z );
+            scene.add( dot );
+
             //
 
             //texture = new THREE.CanvasTexture( generateTexture( data, worldWidth, worldDepth ) );
