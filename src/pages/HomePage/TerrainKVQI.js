@@ -116,9 +116,9 @@ function TerrainColoradoRiver() {
             texture.wrapT = THREE.ClampToEdgeWrapping;
             texture.colorSpace = THREE.SRGBColorSpace;
 
-            mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
+            //mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
             /**uncomment for black wire mesh **/
-            //mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true } ) );
+            mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true } ) );
             scene.add( mesh );
 
             const geometryHelper = new THREE.ConeGeometry( 20, 100, 3 );
