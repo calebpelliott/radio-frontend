@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 import {BufferAttribute} from "three";
 
-let scene, camera, renderer, raycaster, mouse;
+let scene, camera, renderer, raycaster, mouse, controls;
 let line, points;
 
 function Cube() {
@@ -17,7 +17,7 @@ function Cube() {
         camera.position.set( 0, 0, 100 );
         camera.lookAt( 0, 0, 0 );
 
-        var controls = new OrbitControls(camera, renderer.domElement );
+        controls = new OrbitControls(camera, renderer.domElement );
         controls.minDistance = 50;
         controls.maxDistance = 100;
         controls.update();
@@ -30,10 +30,11 @@ function Cube() {
         // use ref as a mount point of the Cube.js scene instead of the document.body
         refContainer.current && refContainer.current.appendChild( renderer.domElement );
         //create a blue LineBasicMaterial
-        const material = new THREE.LineBasicMaterial( { vertexColors: true } );
+        //const material = new THREE.LineBasicMaterial( { vertexColors: true } );
+        const material = new THREE.LineBasicMaterial( { color: 0xff0000 } );
         points = [];
         points.push( new THREE.Vector3( - 10, 0, 0 ) );
-        points.push( new THREE.Vector3( 0, 10, 0 ) );
+        points.push( new THREE.Vector3( 0, 0, 0 ) );
         points.push( new THREE.Vector3( 10, 0, 0 ) );
 
         const geometry = new THREE.BufferGeometry().setFromPoints( points );
@@ -51,7 +52,7 @@ function Cube() {
             requestAnimationFrame(animate);
 
             movePointInCircle();
-
+            controls.update();
             renderer.render(scene, camera);
         };
         animate();
@@ -87,29 +88,73 @@ function onClick(event) {
     mouse.y = -(mouseY * 2) + 1;
 
     // Update the raycaster with the camera and mouse position
+    //raycaster = new THREE.Raycaster();
+    //camera.updateProjectionMatrix();
     raycaster.setFromCamera(mouse, camera);
 
     // Calculate objects intersecting the ray
     const intersects = raycaster.intersectObject(line);
 
-    console.log('x: ', mouse.x, ' y: ', mouse.y);
+    //console.log('x: ', mouse.x, ' y: ', mouse.y);
+
+    //addPointAtClick();
+    addPointAtClickAfterRotation();
+
     if (intersects.length > 0) {
         console.log('Line clicked!', intersects[0].point);
-        points.push(new THREE.Vector3(10,10,0));
-        let newGeom = new THREE.BufferGeometry().setFromPoints(points);
-        let colorArr = Array(newGeom.attributes.position.count).fill([1,0,0]).flat();
-        colorArr[1] = 1;
-        const colors = new Float32Array(
-            colorArr
-        );
-        newGeom.setAttribute('color', new BufferAttribute( colors,3 ) );
+        console.log('Line clicked: ', intersects[0].index);
+        //addStaticPoint();
 
-        line.geometry.dispose();
-        line.geometry = newGeom;
+
+        //dragVertex();
+        //dragVertexAfterRotation();//TODO
+        //splitAndDragSegmentAtClick();//TODO
 
         // Example: Change line color when clicked
         //line.material.color.set(0xff0000);
     }
+}
+
+function addStaticPoint() {
+    points.push(new THREE.Vector3(10,10,5));
+    let newGeom = new THREE.BufferGeometry().setFromPoints(points);
+    let colorArr = Array(newGeom.attributes.position.count).fill([1,0,0]).flat();
+    colorArr[1] = 1;
+    const colors = new Float32Array(
+        colorArr
+    );
+    newGeom.setAttribute('color', new BufferAttribute( colors,3 ) );
+
+    line.geometry.dispose();
+    line.geometry = newGeom;
+}
+
+function addPointAtClick() {
+    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    const intersection = new THREE.Vector3();
+    raycaster.ray.intersectPlane(plane, intersection);
+    points.push(intersection);
+    line.geometry.dispose();
+    line.geometry.setFromPoints(points);
+}
+
+function addPointAtClickAfterRotation() {
+    const camDirection = new THREE.Vector3();
+    camera.getWorldDirection(camDirection);
+
+    const plane = new THREE.Plane(camDirection, 0);
+    const intersection = new THREE.Vector3();
+    raycaster.ray.intersectPlane(plane, intersection);
+    points.push(intersection);
+    
+    //let newGeo = new THREE.BufferGeometry().setFromPoints(points);
+    
+    line.geometry.dispose();
+    line.geometry.setFromPoints(points);
+}
+
+function dragVertex() {
+
 }
 
 export default Cube
