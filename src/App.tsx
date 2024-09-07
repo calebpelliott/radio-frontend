@@ -7,11 +7,6 @@ import {IsEvenOrOddQuery, QueryIsEvenOrOddArgs} from './apollo/types';  // The g
 
 import HomePage from "./pages/HomePage/HomePage";
 import {CREATE_JSON} from "./apollo/mutations";
-import KVQI from "./pages/HomePage/KVQI_Vail_CO_88-5";
-import TerrainCorner from "./pages/HomePage/TerrainCorner";
-import TerrainColoradoRiver from "./pages/HomePage/TerrainColoradoRiver";
-import TerrainKVQI from "./pages/HomePage/TerrainKVQI";
-import LineSegments from "./pages/HomePage/LineSegmentsFromCubeGeometry";
 import SimpleLineSegments from "./pages/HomePage/SimpleLineSegments";
 
 const App: React.FC = () => {
