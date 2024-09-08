@@ -7,7 +7,7 @@ import {IsEvenOrOddQuery, QueryIsEvenOrOddArgs} from './apollo/types';  // The g
 
 import HomePage from "./pages/HomePage/HomePage";
 import {CREATE_JSON} from "./apollo/mutations";
-import SimpleLineSegments from "./pages/HomePage/SimpleLineSegments";
+import LineSegments from "./pages/HomePage/LineSegments";
 
 const App: React.FC = () => {
     const [number, setNumber] = useState<number>(0);
@@ -43,7 +43,7 @@ const App: React.FC = () => {
                 {error && <p>Error: {error.message}</p>}
                 {data && <p>The number is {data.isEvenOrOdd}.</p>}
 
-                <SimpleLineSegments></SimpleLineSegments>
+                <LineSegments></LineSegments>
                 <p>{dataLoaded ? "Loaded" : "Not Loaded"}</p>
             </div>
             <Routes>

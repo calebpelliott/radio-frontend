@@ -58,7 +58,7 @@ function Cube() {
         animate();
         window.addEventListener('click', onClick,false);
         window.addEventListener('mousemove', (event) => {
-            checkIntersection();
+            checkIntersection(event);
         });
         return () => {
             renderer.setSize(0,0);
@@ -78,7 +78,7 @@ function movePointInCircle() {
     postition.needsUpdate = true;
 }
 
-function onClick(event) {
+function updateMouse(event) {
     // Get the canvas bounds
     const canvasBounds = renderer.domElement.getBoundingClientRect();
 
@@ -89,7 +89,9 @@ function onClick(event) {
     // Convert mouse coordinates to normalized device coordinates (-1 to +1 range)
     mouse.x = (mouseX * 2) - 1;
     mouse.y = -(mouseY * 2) + 1;
+}
 
+function onClick(event) {
     // Update the raycaster with the camera and mouse position
     raycaster.setFromCamera(mouse, camera);
 
@@ -116,8 +118,19 @@ function onClick(event) {
     }
 }
 
-function checkIntersection() {
+function checkIntersection(event) {
     console.log('checking intersection');
+    updateMouse(event);
+    raycaster.setFromCamera(mouse, camera);
+    const intersection = raycaster.intersectObject(line);
+
+    if (intersection.length > 0) {
+        const line = intersection[0].object;
+        const material = line.material.clone(); // Clone the material
+        material.color.set(0x0000ff); // Set hover color to red
+        line.material = material; // Apply the new material
+    }
+
 }
 
 function addStaticPoint() {
