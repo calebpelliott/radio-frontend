@@ -43,7 +43,7 @@ function Cube() {
         const colors = new Float32Array(
             colorArr
         );
-        geometry.setAttribute('color', new BufferAttribute( colors,3 ) );
+        //geometry.setAttribute('color', new BufferAttribute( colors,3 ) );
 
         line = new THREE.Line( geometry, material );
         scene.add(line);
@@ -57,6 +57,9 @@ function Cube() {
         };
         animate();
         window.addEventListener('click', onClick,false);
+        window.addEventListener('mousemove', (event) => {
+            checkIntersection();
+        });
         return () => {
             renderer.setSize(0,0);
             renderer.forceContextLoss();
@@ -88,8 +91,6 @@ function onClick(event) {
     mouse.y = -(mouseY * 2) + 1;
 
     // Update the raycaster with the camera and mouse position
-    //raycaster = new THREE.Raycaster();
-    //camera.updateProjectionMatrix();
     raycaster.setFromCamera(mouse, camera);
 
     // Calculate objects intersecting the ray
@@ -113,6 +114,10 @@ function onClick(event) {
         // Example: Change line color when clicked
         //line.material.color.set(0xff0000);
     }
+}
+
+function checkIntersection() {
+    console.log('checking intersection');
 }
 
 function addStaticPoint() {
@@ -151,6 +156,8 @@ function addPointAtClickAfterRotation() {
     
     line.geometry.dispose();
     line.geometry.setFromPoints(points);
+    line.geometry.computeBoundingBox();
+    line.geometry.computeBoundingSphere();
 }
 
 function dragVertex() {
