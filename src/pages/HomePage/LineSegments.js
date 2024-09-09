@@ -172,36 +172,7 @@ function onMouseMove(event) {
 
 
     if (isDraggingVertex) {
-        let camDirection = new THREE.Vector3();
-        camera.getWorldDirection(camDirection);
-        let plane = new THREE.Plane(camDirection, 0);
-        let intersection = new THREE.Vector3();
-        raycaster.setFromCamera(mouse, camera);
-        raycaster.ray.intersectPlane(plane, intersection);
-        //console.log('dragging');
-
-        //Assume odd
-        let sharedVertIndex = draggedIndex + 1;
-
-        //If even, shared vert is -1, else +1
-        if (draggedIndex % 2 === 0) {
-            sharedVertIndex = draggedIndex - 1;
-        }
-
-        let position = line.geometry.attributes.position;
-        position.array[(3 * draggedIndex) + 0] = intersection.x;
-        position.array[(3 * draggedIndex) + 1] = intersection.y;
-        position.array[(3 * draggedIndex) + 2] = intersection.z;
-
-        //Check to make sure the shared vertex is within the bounds of the geometry
-        if (sharedVertIndex >= 0  && sharedVertIndex < position.count) {
-            position.array[(3 * sharedVertIndex) + 0] = intersection.x;
-            position.array[(3 * sharedVertIndex) + 1] = intersection.y;
-            position.array[(3 * sharedVertIndex) + 2] = intersection.z;
-        }
-
-        position.needsUpdate = true;
-        console.log('x', position.array[(3 * draggedIndex) + 0], 'y', position.array[(3 * draggedIndex) + 1], 'z', position.array[(3 * draggedIndex) + 2]);
+        dragVertex();
     }
 
     //raycaster.setFromCamera(mouse, camera);
@@ -263,7 +234,39 @@ function addPointAtClickAfterRotation() {
 }
 
 function dragVertex() {
+    let position = line.geometry.attributes.position;
+    let camDirection = new THREE.Vector3();
+    camera.getWorldDirection(camDirection);
+    let draggedVertex = new THREE.Vector3(position.array[(3 * draggedIndex) + 0],position.array[(3 * draggedIndex) + 1], position.array[(3 * draggedIndex) + 2]);
+    let plane = new THREE.Plane(camDirection, 0);
+    let distanceBetweenPointAndOriginPlane = plane.distanceToPoint(draggedVertex);
+    plane.constant = distanceBetweenPointAndOriginPlane;
+    let intersection = new THREE.Vector3();
+    raycaster.setFromCamera(mouse, camera);
+    raycaster.ray.intersectPlane(plane, intersection);
 
+    //Assume odd
+    let sharedVertIndex = draggedIndex + 1;
+
+    //If even, shared vert is -1, else +1
+    if (draggedIndex % 2 === 0) {
+        sharedVertIndex = draggedIndex - 1;
+    }
+
+
+    position.array[(3 * draggedIndex) + 0] = intersection.x;
+    position.array[(3 * draggedIndex) + 1] = intersection.y;
+    position.array[(3 * draggedIndex) + 2] = intersection.z;
+
+    //Check to make sure the shared vertex is within the bounds of the geometry
+    if (sharedVertIndex >= 0  && sharedVertIndex < position.count) {
+        position.array[(3 * sharedVertIndex) + 0] = intersection.x;
+        position.array[(3 * sharedVertIndex) + 1] = intersection.y;
+        position.array[(3 * sharedVertIndex) + 2] = intersection.z;
+    }
+
+    position.needsUpdate = true;
+    console.log('x', position.array[(3 * draggedIndex) + 0], 'y', position.array[(3 * draggedIndex) + 1], 'z', position.array[(3 * draggedIndex) + 2]);
 }
 
 export default Cube
