@@ -6,6 +6,8 @@ import {BufferAttribute} from "three";
 
 let scene, camera, renderer, raycaster, mouse, controls;
 let line, points, colors;
+let isDraggingVertex = false;
+let draggedIndex;
 
 function Cube() {
     const refContainer = useRef(null);
@@ -56,8 +58,10 @@ function Cube() {
         animate();
         window.addEventListener('click', onClick,false);
         window.addEventListener('mousemove', (event) => {
-            checkIntersection(event);
+            onMouseMove(event);
         });
+        window.addEventListener('mousedown', onMouseDown, false);
+        window.addEventListener('mouseup', onMouseUp, false);
         return () => {
             renderer.setSize(0,0);
             renderer.forceContextLoss();
@@ -67,6 +71,49 @@ function Cube() {
     return (
         <div ref={refContainer}></div>
     );
+}
+
+function onMouseDown(event) {
+    updateMouse(event);
+    raycaster.setFromCamera(mouse, camera);
+    let intersection = raycaster.intersectObject(line);
+    if (intersection.length > 0) {
+        let index = intersection[0].index;
+        console.log('intersection index: ', index);
+
+        //find vertex closest to intersection[0].point
+        let intersect = intersection[0].point;
+        let intersectedArray = intersection[0].object.geometry.attributes.position.array;
+        let p1 = [intersectedArray[(3*index)],intersectedArray[(3*index)+1],intersectedArray[(3*index)+2]];
+        let p2 = [intersectedArray[(3*index)+3],intersectedArray[(3*index)+4],intersectedArray[(3*index)+5]];
+        p1 = new THREE.Vector3(p1[0], p1[1], p1[2]);
+        p2 = new THREE.Vector3(p2[0], p2[1], p2[2]);
+
+        let closestIndex;
+        if (p1.distanceTo(intersect) <= p2.distanceTo(intersect)) {
+            closestIndex = index;
+            console.log('p1 closer index: ', closestIndex);
+        }
+        else {
+            closestIndex = index+1;
+            console.log('p2 closer index: ', closestIndex);
+        }
+
+        isDraggingVertex = true;
+        controls.enableRotate = false;
+        draggedIndex = closestIndex;
+        console.log(draggedIndex);
+    }
+
+}
+
+function onMouseUp(event) {
+    if (isDraggingVertex) {
+        isDraggingVertex = false;
+        controls.enableRotate = true;
+        line.geometry.computeBoundingBox();
+        line.geometry.computeBoundingSphere();
+    }
 }
 
 function movePointInCircle() {
@@ -99,7 +146,7 @@ function onClick(event) {
     //console.log('x: ', mouse.x, ' y: ', mouse.y);
 
     //addPointAtClick();
-    addPointAtClickAfterRotation();
+
 
     if (intersects.length > 0) {
         console.log('Line clicked!', intersects[0].point);
@@ -114,12 +161,50 @@ function onClick(event) {
         // Example: Change line color when clicked
         //line.material.color.set(0xff0000);
     }
+    else {
+        addPointAtClickAfterRotation();
+    }
 }
 
-function checkIntersection(event) {
-    console.log('checking intersection');
+function onMouseMove(event) {
+    //console.log('checking intersection');
     updateMouse(event);
-    raycaster.setFromCamera(mouse, camera);
+
+
+    if (isDraggingVertex) {
+        let camDirection = new THREE.Vector3();
+        camera.getWorldDirection(camDirection);
+        let plane = new THREE.Plane(camDirection, 0);
+        let intersection = new THREE.Vector3();
+        raycaster.setFromCamera(mouse, camera);
+        raycaster.ray.intersectPlane(plane, intersection);
+        //console.log('dragging');
+
+        //Assume odd
+        let sharedVertIndex = draggedIndex + 1;
+
+        //If even, shared vert is -1, else +1
+        if (draggedIndex % 2 === 0) {
+            sharedVertIndex = draggedIndex - 1;
+        }
+
+        let position = line.geometry.attributes.position;
+        position.array[(3 * draggedIndex) + 0] = intersection.x;
+        position.array[(3 * draggedIndex) + 1] = intersection.y;
+        position.array[(3 * draggedIndex) + 2] = intersection.z;
+
+        //Check to make sure the shared vertex is within the bounds of the geometry
+        if (sharedVertIndex >= 0  && sharedVertIndex < position.count) {
+            position.array[(3 * sharedVertIndex) + 0] = intersection.x;
+            position.array[(3 * sharedVertIndex) + 1] = intersection.y;
+            position.array[(3 * sharedVertIndex) + 2] = intersection.z;
+        }
+
+        position.needsUpdate = true;
+        console.log('x', position.array[(3 * draggedIndex) + 0], 'y', position.array[(3 * draggedIndex) + 1], 'z', position.array[(3 * draggedIndex) + 2]);
+    }
+
+    //raycaster.setFromCamera(mouse, camera);
     /*const intersection = raycaster.intersectObject(line);
 
     if (intersection.length > 0) {
