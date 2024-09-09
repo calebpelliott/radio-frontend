@@ -8,6 +8,7 @@ let scene, camera, renderer, raycaster, mouse, controls;
 let line, colors;
 let isDraggingVertex = false;
 let draggedIndex;
+let enabledEdgeSplitting = true;
 
 function Cube() {
     const refContainer = useRef(null);
@@ -103,7 +104,41 @@ function onMouseDown(event) {
         controls.enableRotate = false;
         draggedIndex = closestIndex;
         console.log(draggedIndex);
+
+        if (enabledEdgeSplitting) {
+            splitIntersectedLine(intersection[0]);
+        }
     }
+}
+
+function splitIntersectedLine(intersection) {
+    console.log(intersection.index);
+    let point = intersection.point;
+    let index = intersection.index;
+    draggedIndex = index+1;
+
+    let oldGeometry = line.geometry.attributes.position.array;
+    let p1 = [oldGeometry[(3*index)], oldGeometry[(3*index)+1],oldGeometry[(3*index)+2]];
+    let p2 = intersection.point;
+    let p3 = [oldGeometry[(3*(index+1))], oldGeometry[(3*(index+1))+1],oldGeometry[(3*(index+1))+2]];
+
+    let slice1 = oldGeometry.slice(0, index*3);
+    let slice2 = oldGeometry.slice(index*3, oldGeometry.length);
+
+    let newGeometry = new Float32Array(oldGeometry.length + 6);
+    newGeometry.set(slice1);
+    newGeometry.set(slice2, index*3+6);
+    newGeometry.set([p2.x,p2.y,p2.z], (index+1)*3);
+    newGeometry.set([p2.x,p2.y,p2.z], (index+1)*3+3);
+
+    line.geometry.setAttribute('position', new THREE.BufferAttribute(newGeometry, 3));
+
+    colors.push(1,1,0,1,1,0);
+    line.geometry.setAttribute('color', new THREE.Float32BufferAttribute( colors,3 ) );
+
+    line.geometry.attributes.position.needsUpdate = true;
+    line.geometry.computeBoundingBox();
+    line.geometry.computeBoundingSphere();
 
 }
 
@@ -172,7 +207,12 @@ function onMouseMove(event) {
 
 
     if (isDraggingVertex) {
-        dragVertex();
+        if(enabledEdgeSplitting) {
+            dragVertex();
+        }
+        else {
+            dragVertex();
+        }
     }
 
     //raycaster.setFromCamera(mouse, camera);
