@@ -5,7 +5,7 @@ import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 import {BufferAttribute} from "three";
 
 let scene, camera, renderer, raycaster, mouse, controls;
-let line, points, colors;
+let line, colors;
 let isDraggingVertex = false;
 let draggedIndex;
 
@@ -34,7 +34,7 @@ function Cube() {
         //create a blue LineBasicMaterial
         //const material = new THREE.LineBasicMaterial( { vertexColors: true } );
         const material = new THREE.LineBasicMaterial( { vertexColors: true } );
-        points = [];
+        let points = [];
         points.push( new THREE.Vector3( - 10, 0, 0 ),  new THREE.Vector3( 0, 0, 0 ));
         points.push( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 10, 10, 0 ) );
         const geometry = new THREE.BufferGeometry().setFromPoints( points );
@@ -216,7 +216,7 @@ function onMouseMove(event) {
 }
 
 function addStaticPoint() {
-    points.push(new THREE.Vector3(10,10,5));
+    /*points.push(new THREE.Vector3(10,10,5));
     let newGeom = new THREE.BufferGeometry().setFromPoints(points);
     let colorArr = Array(newGeom.attributes.position.count).fill([1,0,0]).flat();
     colorArr[1] = 1;
@@ -226,16 +226,16 @@ function addStaticPoint() {
     newGeom.setAttribute('color', new BufferAttribute( colors,3 ) );
 
     line.geometry.dispose();
-    line.geometry = newGeom;
+    line.geometry = newGeom;*/
 }
 
 function addPointAtClick() {
-    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    /*const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
     const intersection = new THREE.Vector3();
     raycaster.ray.intersectPlane(plane, intersection);
     points.push(intersection);
     line.geometry.dispose();
-    line.geometry.setFromPoints(points);
+    line.geometry.setFromPoints(points);*/
 }
 
 function addPointAtClickAfterRotation() {
@@ -245,14 +245,19 @@ function addPointAtClickAfterRotation() {
     const plane = new THREE.Plane(camDirection, 0);
     const intersection = new THREE.Vector3();
     raycaster.ray.intersectPlane(plane, intersection);
-    points.push(points.at(-1));
-    points.push(intersection);
+
+    let oldGeometry = line.geometry.attributes.position.array;
+    let lastPoint = [oldGeometry[oldGeometry.length - 3], oldGeometry[oldGeometry.length - 2], oldGeometry[oldGeometry.length - 1]];
+    let newGeometry = new Float32Array(oldGeometry.length + 6);
+    newGeometry.set(oldGeometry);
+    newGeometry.set(lastPoint, oldGeometry.length);
+    newGeometry.set([intersection.x, intersection.y, intersection.z], oldGeometry.length+3);
+    line.geometry.setAttribute('position', new THREE.BufferAttribute(newGeometry, 3));
 
     colors.push(1,1,0,1,1,0);
     line.geometry.setAttribute('color', new THREE.Float32BufferAttribute( colors,3 ) );
-    
-    line.geometry.dispose();
-    line.geometry.setFromPoints(points);
+
+    line.geometry.attributes.position.needsUpdate = true;
     line.geometry.computeBoundingBox();
     line.geometry.computeBoundingSphere();
 }
