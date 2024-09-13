@@ -106,6 +106,7 @@ function onMouseDown(event) {
         console.log(draggedIndex);
 
         if (enabledEdgeSplitting) {
+            console.log(intersection[0]);
             splitIntersectedLine(intersection[0]);
         }
     }
@@ -113,7 +114,6 @@ function onMouseDown(event) {
 
 function splitIntersectedLine(intersection) {
     console.log(intersection.index);
-    let point = intersection.point;
     let index = intersection.index;
     draggedIndex = index+1;
 
@@ -122,12 +122,12 @@ function splitIntersectedLine(intersection) {
     let p2 = intersection.point;
     let p3 = [oldGeometry[(3*(index+1))], oldGeometry[(3*(index+1))+1],oldGeometry[(3*(index+1))+2]];
 
-    let slice1 = oldGeometry.slice(0, index*3);
-    let slice2 = oldGeometry.slice(index*3, oldGeometry.length);
+    let slice1 = oldGeometry.slice(0, (index+1)*3);
+    let slice2 = oldGeometry.slice(((index+1)*3), oldGeometry.length);
 
     let newGeometry = new Float32Array(oldGeometry.length + 6);
     newGeometry.set(slice1);
-    newGeometry.set(slice2, index*3+6);
+    newGeometry.set(slice2, (index+3)*3);
     newGeometry.set([p2.x,p2.y,p2.z], (index+1)*3);
     newGeometry.set([p2.x,p2.y,p2.z], (index+1)*3+3);
 
