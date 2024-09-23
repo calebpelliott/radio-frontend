@@ -7,7 +7,8 @@ import {IsEvenOrOddQuery, QueryIsEvenOrOddArgs} from './apollo/types';  // The g
 
 import HomePage from "./pages/HomePage/HomePage";
 import {CREATE_JSON} from "./apollo/mutations";
-import LineSegments from "./pages/HomePage/LineSegments";
+import Scratch from "./pages/HomePage/Perspective";
+import TerrainKVQI from "./pages/HomePage/TerrainKVQI";
 
 const App: React.FC = () => {
     const [number, setNumber] = useState<number>(0);
@@ -43,7 +44,7 @@ const App: React.FC = () => {
                 {error && <p>Error: {error.message}</p>}
                 {data && <p>The number is {data.isEvenOrOdd}.</p>}
 
-                <LineSegments></LineSegments>
+                <TerrainKVQI></TerrainKVQI>
                 <p>{dataLoaded ? "Loaded" : "Not Loaded"}</p>
             </div>
             <Routes>

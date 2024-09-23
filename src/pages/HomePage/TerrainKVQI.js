@@ -2,17 +2,13 @@ import * as THREE from 'three';
 
 import { useEffect, useRef } from "react";
 
-import Stats from 'three/addons/libs/stats.module.js';
-
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
 import {loadSwath} from "./KVQI_Vail_CO_88-5";
 
-let container, stats;
-
 let camera, controls, scene, renderer;
 
-let mesh, texture;
+let mesh;
 
 const worldHeight = 512, worldWidth = 512,
     worldHalfWidth = worldHeight / 2, worldHalfDepth = worldWidth / 2;
@@ -30,11 +26,8 @@ function TerrainColoradoRiver() {
             renderer.setPixelRatio( window.devicePixelRatio );
             renderer.setSize( window.innerWidth, window.innerHeight );
             renderer.setAnimationLoop( animate );
-            // document.body.appendChild( renderer.domElement );
-            // use ref as a mount point of the Cube.js scene instead of the document.body
-            refContainer.current && refContainer.current.appendChild( renderer.domElement );
 
-            stats = new Stats();
+            refContainer.current && refContainer.current.appendChild( renderer.domElement );
 
             scene = new THREE.Scene();
             scene.background = new THREE.Color( 0xbfd1e5 );
@@ -43,10 +36,8 @@ function TerrainColoradoRiver() {
 
             controls = new OrbitControls( camera, renderer.domElement );
             controls.minDistance = 1000;
-            controls.maxDistance = 100000;
+            controls.maxDistance = 10000;
             controls.maxPolarAngle = Math.PI / 2;
-
-            //
 
             const data = generateHeight( worldHeight, worldWidth );
             let [elevationData, contour_idxs] = await loadElevationData(worldHeight, worldWidth,  39.832799, -106.857484, 4, 4);
@@ -72,24 +63,7 @@ function TerrainColoradoRiver() {
             geometry.rotateX( - Math.PI / 2 );
 
             const vertices = geometry.attributes.position.array;
-            let x = 0;
-            let inc = true;
             for ( let i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
-                if (inc && x > 255) {
-                    inc = false;
-                }
-                else if (!inc && x < 1) {
-                    inc = true;
-                }
-
-                if (inc) {
-                    x++
-                }else{
-                    x--
-                }
-
-                //vertices[ j + 1 ] = x*10;//triangle slices
-                //vertices[ j + 1 ] = data[ i ] * 10;
                 vertices[ j + 1 ] = elevationData[ i ] * .5;
             }
 
@@ -99,7 +73,7 @@ function TerrainColoradoRiver() {
                 let point_z = vertPosition.getZ(contour_idxs[i]);
                 let point_y = vertPosition.getY(contour_idxs[i]);
 
-                let dotGeometry = new THREE.BoxGeometry( 80, 20, 80 ),
+                let dotGeometry = new THREE.SphereGeometry( 20 ),
                     dotMaterial = new THREE.MeshBasicMaterial( {color:'blue'})
 
                 var dot = new THREE.Mesh( dotGeometry, dotMaterial );
@@ -107,30 +81,24 @@ function TerrainColoradoRiver() {
                 scene.add( dot );
             }
 
-
-            //
-
-            //texture = new THREE.CanvasTexture( generateTexture( data, worldWidth, worldDepth ) );
-            texture = new THREE.CanvasTexture( generateTexture( elevationData, worldHeight, worldWidth ) );
-            texture.wrapS = THREE.ClampToEdgeWrapping;
-            texture.wrapT = THREE.ClampToEdgeWrapping;
-            texture.colorSpace = THREE.SRGBColorSpace;
-
-            //mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
             /**uncomment for black wire mesh **/
             mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true } ) );
             scene.add( mesh );
 
-            const geometryHelper = new THREE.ConeGeometry( 20, 100, 3 );
+            /*const geometryHelper = new THREE.ConeGeometry( 20, 100, 3 );
             geometryHelper.translate( 0, 50, 0 );
             geometryHelper.rotateX( Math.PI / 2 );
             helper = new THREE.Mesh( geometryHelper, new THREE.MeshNormalMaterial() );
-            scene.add( helper );
+            scene.add( helper );*/
 
-            refContainer.current && refContainer.current.addEventListener( 'pointermove', onPointerMove );
+            var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(200, 2000, 0);
+            scene.add( directionalLight );
+
+            //refContainer.current && refContainer.current.addEventListener( 'pointermove', onPointerMove );
 
 
-            refContainer.current && refContainer.current.appendChild( stats.dom );
+            //refContainer.current && refContainer.current.appendChild( stats.dom );
 
             window.addEventListener( 'resize', onWindowResize );
         };
@@ -185,89 +153,11 @@ function generateHeight( width, height ) {
 
 }
 
-function generateTexture( data, width, height ) {
-
-    // bake lighting into texture
-
-    let context, image, imageData, shade;
-
-    const vector3 = new THREE.Vector3( 0, 0, 0 );
-
-    const sun = new THREE.Vector3( 1, 1, 1 );
-    sun.normalize();
-
-    const canvas = document.createElement( 'canvas' );
-    canvas.width = width;
-    canvas.height = height;
-
-    context = canvas.getContext( '2d' );
-    context.fillStyle = '#000';
-    context.fillRect( 0, 0, width, height );
-
-    image = context.getImageData( 0, 0, canvas.width, canvas.height );
-    imageData = image.data;
-
-    for ( let i = 0, j = 0, l = imageData.length; i < l; i += 4, j ++ ) {
-
-        vector3.x = data[ j - 2 ] - data[ j + 2 ];
-        vector3.y = 2;
-        vector3.z = data[ j - width * 2 ] - data[ j + width * 2 ];
-        vector3.normalize();
-
-        shade = vector3.dot( sun );
-
-        imageData[ i ] = ( 96 + shade * 128 ) * ( 0.5 + data[ j ] * 0.007 );
-        imageData[ i + 1 ] = ( 32 + shade * 96 ) * ( 0.5 + data[ j ] * 0.007 );
-        imageData[ i + 2 ] = ( shade * 96 ) * ( 0.5 + data[ j ] * 0.007 );
-
-    }
-
-    context.putImageData( image, 0, 0 );
-
-    // Scaled 4x
-
-    const canvasScaled = document.createElement( 'canvas' );
-    canvasScaled.width = width * 4;
-    canvasScaled.height = height * 4;
-
-    context = canvasScaled.getContext( '2d' );
-    context.scale( 4, 4 );
-    context.drawImage( canvas, 0, 0 );
-
-    image = context.getImageData( 0, 0, canvasScaled.width, canvasScaled.height );
-    imageData = image.data;
-
-    for ( let i = 0, l = imageData.length; i < l; i += 4 ) {
-
-        const v = ~ ~ ( Math.random() * 5 );
-
-        imageData[ i ] += v;
-        imageData[ i + 1 ] += v;
-        imageData[ i + 2 ] += v;
-
-    }
-
-    context.putImageData( image, 0, 0 );
-
-    let dotGeometry = new THREE.BoxGeometry( 80, 20, 80 ),
-        dotMaterial = new THREE.MeshBasicMaterial( {color:'blue'})
-
-    let pixel = context.getImageData( 0, 0, 1, 1 );
-    let y = 1000
-    var dot = new THREE.Mesh( dotGeometry, dotMaterial );
-    dot.position.set( -3750, y, -3750 );
-    scene.add( dot );
-
-    return canvasScaled;
-
-}
-
-//
 
 function animate() {
 
     render();
-    stats.update();
+    //stats.update();
 
 }
 
