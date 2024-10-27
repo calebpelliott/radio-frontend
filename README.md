@@ -44,3 +44,21 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+## More Info
+
+Example of "normal" FCC 60 db map, Indianapolis, IN (Data in the form of a list of 360 (lat, lon) coordinate pairs)
+![image](https://github.com/user-attachments/assets/717e81ab-46aa-4001-82d0-b142822845a2)
+
+
+Example of "interesting" FCC 60 db map, Vail, CO
+![image](https://github.com/user-attachments/assets/161f9903-7b8d-4540-8364-a6d961d46f11)
+
+
+USGS 3DEP Elevation Data 1 Arc-Second (30 Meter Resolution) (Data in the form of (pixel-x, pixel-y, elevation meters) with origin at top left)
+![image](https://github.com/user-attachments/assets/0e1057e5-6c3a-413c-94cf-6f3daedf7e4a)
+
+Approximate KVQI Radio Signal Footprint within USGS data\
+![image](https://github.com/user-attachments/assets/5e4969a1-5c64-4328-a1bb-95a8674bc813)
+
+
