@@ -65,7 +65,8 @@ Approximate KVQI Radio Signal Footprint within USGS data\
 ## Example
 youtube.com/video/4qxbsp_CPBc
 
-![image](https://github.com/user-attachments/assets/f284aea8-9bfe-4274-931e-5cef8bfd285c)
+![ezgif-1-c85098ba0e](https://github.com/user-attachments/assets/6d0994ab-6be6-4964-a9c1-64259ee00732)
+
 
 
 
